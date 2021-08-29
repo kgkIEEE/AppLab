@@ -2,6 +2,23 @@ import os
 
 from flask import Flask
 
+from pythonjsonlogger import jsonlogger
+import logging.config
+import traceback
+import time
+
+logger = logging.getLogger()
+
+logHandler = logging.StreamHandler()
+formatter = jsonlogger.JsonFormatter()
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+logger = logging.getLogger(__name__)
+logging.config.fileConfig('logging.ini', disable_existing_loggers=False, defaults={'logfilename': 'mylog.log'})
+
+logger.info("Logging started")
+                
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -26,6 +43,18 @@ def create_app(test_config=None):
     # a simple page that says hello
     @app.route('/hello')
     def hello():
+        starttime = time.time()
         return 'Hello, World!'
+        endtime = time.time()
+        duration = endtime - starttime
+        logger.info("Route to hello()", extra={"run_duration":duration})
+            
 
+    @app.route('/')
+    def index():
+        starttime = time.time()
+        return 'index'
+        endtime = time.time()
+        duration = endtime - starttime
+        logger.info("Route to index()", extra={"run_duration":duration})
     return app
